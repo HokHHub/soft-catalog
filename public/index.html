@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoftHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b14;
+    --bg2: #0d1120;
+    --card: #111827;
+    --card-hover: #161f33;
+    --border: #1e2a3d;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --accent-glow: rgba(59,130,246,0.25);
+    --text: #e2e8f5;
+    --muted: #64748b;
+    --badge: #1e3a5f;
+    --badge-text: #93c5fd;
+    --danger: #ef4444;
+    --success: #22c55e;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Nav ─────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,11,20,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.4rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .nav-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* ── Search ───────────────────────────────────────── */
+  .search-wrap {
+    position: relative;
+    width: 280px;
+  }
+  .search-wrap svg {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); pointer-events: none;
+  }
+  #search {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px 9px 38px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  #search:focus { border-color: var(--accent); }
+  #search::placeholder { color: var(--muted); }
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(59,130,246,0.12), transparent);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent);
+  }
+  .hero-tag {
+    display: inline-block;
+    background: var(--badge);
+    color: var(--badge-text);
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+    padding: 4px 14px;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(59,130,246,0.3);
+    animation: fadeUp .6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    animation: fadeUp .6s .1s ease both;
+  }
+  .hero h1 .hi { color: var(--accent2); }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    animation: fadeUp .6s .2s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Stats bar ────────────────────────────────────── */
+  .stats-bar {
+    display: flex; justify-content: center; gap: 3rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .stat { text-align: center; }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── Main layout ──────────────────────────────────── */
+  .main { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+  /* ── Categories sidebar ───────────────────────────── */
+  .layout { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; }
+
+  .sidebar { position: sticky; top: 80px; align-self: start; }
+  .sidebar-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .cat-list { display: flex; flex-direction: column; gap: 3px; }
+  .cat-btn {
+    display: flex; align-items: center; gap: 10px;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 9px 14px;
+    border-radius: 10px;
+    text-align: left;
+    width: 100%;
+    transition: all .15s;
+  }
+  .cat-btn:hover { background: var(--card); color: var(--text); }
+  .cat-btn.active { background: var(--accent-glow); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+  .cat-btn .cat-count {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .cat-btn.active .cat-count { color: var(--badge-text); }
+
+  /* ── Content area ─────────────────────────────────── */
+  .content-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .content-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .content-sub { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── Program grid ─────────────────────────────────── */
+  .prog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1rem;
+  }
+  .prog-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.3rem;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+    animation: cardIn .4s ease both;
+  }
+  .prog-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--accent-glow), transparent);
+    opacity: 0; transition: opacity .2s;
+  }
+  .prog-card:hover { background: var(--card-hover); border-color: rgba(59,130,246,0.4); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .prog-card:hover::before { opacity: 1; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .prog-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 0.75rem; }
+  .prog-icon {
+    width: 48px; height: 48px;
+    background: var(--bg2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .prog-icon img { width: 100%; height: 100%; object-fit: cover; }
+  .prog-meta { flex: 1; min-width: 0; }
+  .prog-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .prog-version {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; color: var(--muted); margin-top: 2px;
+  }
+  .prog-desc {
+    font-size: 0.85rem; color: var(--muted);
+    line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .prog-footer { display: flex; align-items: center; justify-content: space-between; }
+  .prog-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.7rem; font-family: 'DM Mono', monospace;
+    padding: 3px 8px; border-radius: 6px;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .badge.cat {
+    background: var(--badge); color: var(--badge-text);
+    border-color: rgba(59,130,246,0.2);
+  }
+  .featured-ribbon {
+    position: absolute; top: 12px; right: -1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    font-size: 0.65rem; font-family: 'DM Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 6px 0 0 6px;
+    color: white; letter-spacing: 0.06em;
+  }
+  .btn-dl {
+    background: var(--accent);
+    color: white;
+    border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 8px;
+    transition: all .15s;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-dl:hover { background: #2563eb; transform: scale(1.04); }
+  .dl-count { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+  /* ── Empty state ──────────────────────────────────── */
+  .empty {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+    grid-column: 1/-1;
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem; }
+
+  /* ── Modal ────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    max-width: 600px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    animation: modalIn .25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(.96) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-icon {
+    width: 64px; height: 64px;
+    background: var(--bg2); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem; flex-shrink: 0;
+    overflow: hidden; border: 1px solid var(--border);
+  }
+  .modal-icon img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; }
+  .modal-sub { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+  .modal-close {
+    margin-left: auto;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 1.2rem;
+    width: 36px; height: 36px;
+    border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .modal-close:hover { background: var(--card-hover); color: var(--text); }
+  .modal-body { padding: 1.5rem; }
+  .modal-desc { color: var(--muted); line-height: 1.75; margin-bottom: 1.5rem; font-size: 0.95rem; }
+  .modal-info {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin-bottom: 1.5rem;
+  }
+  .info-item { background: var(--bg2); border-radius: 10px; padding: 0.75rem 1rem; }
+  .info-label { font-size: 0.72rem; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+  .info-val { font-size: 0.95rem; font-weight: 500; margin-top: 3px; }
+  .btn-dl-big {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    color: white; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    padding: 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all .2s;
+  }
+  .btn-dl-big:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(59,130,246,0.4); }
+  .no-file-msg { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 1rem; background: var(--bg2); border-radius: 10px; }
+
+  /* ── Footer ───────────────────────────────────────── */
+  footer {
+    margin-top: 5rem;
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ── Loading ──────────────────────────────────────── */
+  .loader {
+    display: flex; justify-content: center; padding: 4rem;
+    grid-column: 1/-1;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .cat-list { flex-direction: row; flex-wrap: wrap; }
+    .stats-bar { gap: 1.5rem; }
+    .search-wrap { width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Soft<span>Hub</span></a>
+  <div class="nav-right">
+    <span class="nav-count" id="navCount">— программ</span>
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Поиск программ...">
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-tag">🆓 100% бесплатно</div>
+  <h1>Лучшие программы<br>в одном месте <span class="hi">бесплатно</span></h1>
+  <p id="heroDesc">Проверенные бесплатные программы для работы, творчества и повседневных задач</p>
+</section>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-val" id="statPrograms">0</div>
+    <div class="stat-label">Программ</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="statCats">0</div>
+    <div class="stat-label">Категорий</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="statDownloads">0</div>
+    <div class="stat-label">Скачиваний</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Категории</div>
+      <div class="cat-list" id="catList"></div>
+    </aside>
+    <div>
+      <div class="content-header">
+        <div>
+          <div class="content-title" id="contentTitle">Все программы</div>
+          <div class="content-sub" id="contentSub"></div>
+        </div>
+      </div>
+      <div class="prog-grid" id="progGrid">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<footer>
+  <a href="/" id="footerTitle">SoftHub</a> — каталог бесплатных программ &nbsp;|&nbsp;
+  <a href="/admin">Войти как администратор</a>
+</footer>
+
+<script>
+  let currentCategory = null;
+  let searchTimer = null;
+  let allPrograms = [];
+
+  function escHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function escAttr(value) {
+    return escHtml(value).replace(/`/g, '&#96;');
+  }
+
+  function iconMarkup(icon) {
+    const value = String(icon ?? '').trim();
+    if (!value) return '📦';
+    if (value.startsWith('/')) {
+      return `<img src="${escAttr(value)}" onerror="this.parentNode.textContent='📦'" alt="">`;
+    }
+    return escHtml(value);
+  }
+
+  function textWithBreaks(value) {
+    return escHtml(value ?? '').replace(/\n/g, '<br>');
+  }
+
+  function setLogoTitle(title) {
+    const safeTitle = String(title || 'SoftHub');
+    const logo = document.querySelector('.logo');
+    const m = safeTitle.match(/^(.*?)([\p{L}\p{N}_-]+)$/u);
+
+    logo.textContent = '';
+    if (!m) {
+      logo.textContent = safeTitle;
+      return;
+    }
+
+    logo.append(document.createTextNode(m[1]));
+    const tail = document.createElement('span');
+    tail.textContent = m[2];
+    logo.append(tail);
+  }
+
+  async function init() {
+    const info = await fetch('/api/info').then(r => r.json());
+    const siteTitle = String(info.site_title || 'SoftHub');
+    document.title = siteTitle;
+    setLogoTitle(siteTitle);
+    document.getElementById('heroDesc').textContent = String(info.site_description || '');
+    document.getElementById('footerTitle').textContent = siteTitle;
+    loadCategories();
+    loadPrograms();
+  }
+
+  async function loadCategories() {
+    const cats = await fetch('/api/categories').then(r => r.json());
+    const total = cats.reduce((s, c) => s + c.program_count, 0);
+    document.getElementById('statCats').textContent = cats.length;
+    document.getElementById('navCount').textContent = total + ' программ';
+
+    const list = document.getElementById('catList');
+    list.innerHTML = `
+      <button class="cat-btn active" onclick="selectCategory(null, this)">
+        <span>🗂️</span> Все программы
+        <span class="cat-count">${total}</span>
+      </button>
+    ` + cats.map(c => `
+      <button class="cat-btn" onclick='selectCategory(${JSON.stringify(String(c.slug || ""))}, this)'>
+        <span>${escHtml(c.icon || '📦')}</span> ${escHtml(c.name || '')}
+        <span class="cat-count">${Number(c.program_count) || 0}</span>
+      </button>
+    `).join('');
+  }
+
+  async function loadPrograms(category = null, search = '') {
+    const grid = document.getElementById('progGrid');
+    grid.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+
+    let url = '/api/programs?limit=100';
+    if (category) url += `&category=${category}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+
+    const data = await fetch(url).then(r => r.json());
+    allPrograms = data.programs;
+
+    const totalDownloads = data.programs.reduce((s, p) => s + p.download_count, 0);
+    document.getElementById('statPrograms').textContent = data.total;
+    document.getElementById('statDownloads').textContent = totalDownloads;
+
+    document.getElementById('contentSub').textContent = `${data.total} программ${search ? ` по запросу "${search}"` : ''}`;
+
+    if (!data.programs.length) {
+      grid.innerHTML = `<div class="empty">
+        <div class="empty-icon">🔍</div>
+        <h3>Ничего не найдено</h3>
+        <p>Попробуй другой запрос или категорию</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = data.programs.map((p, i) => `
+      <div class="prog-card" onclick="openProgram(${p.id})" style="animation-delay:${i*0.04}s">
+        ${p.is_featured ? '<div class="featured-ribbon">⭐ ТОП</div>' : ''}
+        <div class="prog-header">
+          <div class="prog-icon">
+            ${iconMarkup(p.icon)}
+          </div>
+          <div class="prog-meta">
+            <div class="prog-name">${escHtml(p.name || '')}</div>
+            <div class="prog-version">${escHtml(p.version || 'latest')} · ${escHtml(p.os || 'Windows')}</div>
+          </div>
+        </div>
+        <div class="prog-desc">${escHtml(p.description || '')}</div>
+        <div class="prog-footer">
+          <div class="prog-badges">
+            <span class="badge cat">${escHtml(p.category_icon || '📦')} ${escHtml(p.category_name || '')}</span>
+            ${p.filesize ? `<span class="badge">${formatSize(p.filesize)}</span>` : ''}
+          </div>
+          ${p.filename ? `<span class="btn-dl">⬇ Скачать</span>` : '<span class="dl-count">нет файла</span>'}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectCategory(slug, btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = slug;
+    document.getElementById('contentTitle').textContent = btn.textContent.trim().replace(/\d+$/, '').trim();
+    const search = document.getElementById('search').value;
+    loadPrograms(slug, search);
+  }
+
+  document.getElementById('search').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadPrograms(currentCategory, e.target.value), 300);
+  });
+
+  async function openProgram(id) {
+    const p = await fetch(`/api/programs/${id}`).then(r => r.json());
+    const modal = document.getElementById('modal');
+    const iconHtml = iconMarkup(p.icon);
+    const programId = Number(p.id) || 0;
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-header">
+        <div class="modal-icon">${iconHtml}</div>
+        <div>
+          <div class="modal-title">${escHtml(p.name || '')}</div>
+          <div class="modal-sub">${escHtml(p.category_icon || '📦')} ${escHtml(p.category_name || '')} · ${escHtml(p.os || 'Windows')}</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-desc">${textWithBreaks(p.long_description || p.description)}</div>
+        <div class="modal-info">
+          <div class="info-item"><div class="info-label">Версия</div><div class="info-val">${escHtml(p.version || '—')}</div></div>
+          <div class="info-item"><div class="info-label">Платформа</div><div class="info-val">${escHtml(p.os || 'Windows')}</div></div>
+          <div class="info-item"><div class="info-label">Размер</div><div class="info-val">${p.filesize ? formatSize(p.filesize) : '—'}</div></div>
+          <div class="info-item"><div class="info-label">Скачиваний</div><div class="info-val">${Number(p.download_count) || 0}</div></div>
+        </div>
+        ${p.filename
+          ? `<a class="btn-dl-big" href="/api/download/${programId}">⬇ Скачать бесплатно</a>`
+          : `<div class="no-file-msg">📂 Файл скоро появится</div>`}
+      </div>
+    `;
+    modal.classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  function formatSize(bytes) {
+    if (!bytes) return '—';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
+    return (bytes/1024/1024).toFixed(1) + ' MB';
+  }
+
+  init();
+</script>
+</body>
+</html>

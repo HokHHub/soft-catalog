@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ панель — SoftHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b14; --bg2: #0d1120; --card: #111827; --card-hover: #161f33;
+    --border: #1e2a3d; --accent: #3b82f6; --accent2: #06b6d4;
+    --accent-glow: rgba(59,130,246,0.2); --text: #e2e8f5;
+    --muted: #64748b; --danger: #ef4444; --success: #22c55e; --warn: #f59e0b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* ── Login screen ─────────────────────────────────── */
+  #loginScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(59,130,246,0.1), transparent);
+  }
+  .login-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2.5rem; width: 360px;
+    animation: fadeUp .5s ease;
+  }
+  .login-box h1 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+  .login-box p { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Common inputs/buttons ────────────────────────── */
+  input, textarea, select {
+    width: 100%; background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    padding: 10px 14px; border-radius: 10px; outline: none; transition: border-color .2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  textarea { resize: vertical; min-height: 90px; }
+  select option { background: var(--bg2); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+    transition: all .15s;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+  .btn-danger:hover { background: rgba(239,68,68,0.25); }
+  .btn-ghost { background: var(--bg2); color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--card-hover); color: var(--text); }
+  .btn-success { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+  .btn-success:hover { background: rgba(34,197,94,0.25); }
+  .btn[disabled] { opacity: .5; pointer-events: none; }
+
+  /* ── Admin layout ─────────────────────────────────── */
+  #adminApp { display: none; }
+  .admin-nav {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem; height: 60px;
+    display: flex; align-items: center; gap: 1rem;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .admin-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-right: auto; }
+  .admin-logo span { color: var(--accent); }
+  .nav-tab {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem; padding: 8px 14px; border-radius: 8px;
+    transition: all .15s;
+  }
+  .nav-tab:hover { background: var(--card); color: var(--text); }
+  .nav-tab.active { background: var(--accent-glow); color: #93c5fd; }
+
+  .admin-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* ── Toast ────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 18px;
+    font-size: 0.88rem; z-index: 999;
+    transform: translateY(80px); opacity: 0;
+    transition: all .3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.ok { border-color: var(--success); color: var(--success); }
+  .toast.err { border-color: var(--danger); color: var(--danger); }
+
+  /* ── Section header ───────────────────────────────── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; }
+
+  /* ── Programs table ───────────────────────────────── */
+  .prog-table { width: 100%; border-collapse: collapse; }
+  .prog-table th {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); font-family: 'DM Mono', monospace;
+    padding: 8px 12px; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .prog-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; vertical-align: middle;
+  }
+  .prog-table tr:hover td { background: var(--card-hover); }
+  .prog-table tr:last-child td { border-bottom: none; }
+  .tbl-icon { font-size: 1.3rem; }
+  .tbl-name { font-weight: 500; }
+  .tbl-cat { font-size: 0.75rem; background: rgba(59,130,246,0.1); color: #93c5fd; padding: 2px 8px; border-radius: 6px; }
+  .tbl-dl { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted); }
+  .tbl-actions { display: flex; gap: 6px; }
+
+  /* ── Form modal ───────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+    z-index: 200; display: none; align-items: center; justify-content: center; padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; max-width: 640px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    animation: modalIn .25s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+  }
+  .modal-head h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+  .modal-close {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--muted); width: 34px; height: 34px;
+    border-radius: 8px; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-form { padding: 1.5rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-field.full { grid-column: 1/-1; }
+  .form-label { font-size: 0.78rem; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  /* ── Upload zone ──────────────────────────────────── */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 10px;
+    padding: 1rem; text-align: center; cursor: pointer;
+    transition: border-color .2s; color: var(--muted); font-size: 0.85rem;
+  }
+  .upload-zone:hover { border-color: var(--accent); color: var(--text); }
+  .upload-zone input { display: none; }
+  .upload-info { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--accent); margin-top: 4px; }
+
+  /* ── Cards grid (stats) ───────────────────────────── */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.25rem;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 0.5rem; }
+  .stat-val { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  /* ── Categories ───────────────────────────────────── */
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+  .cat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem; display: flex; align-items: center; gap: 12px;
+  }
+  .cat-card .ico { font-size: 1.5rem; }
+  .cat-card .info { flex: 1; }
+  .cat-card .name { font-weight: 500; font-size: 0.9rem; }
+  .cat-card .slug { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+
+  /* ── Settings ─────────────────────────────────────── */
+  .settings-form { max-width: 480px; display: flex; flex-direction: column; gap: 1rem; }
+  .warn-box {
+    background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+    color: var(--warn); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>🔐 Админ панель</h1>
+    <p>Введи пароль для входа в панель управления</p>
+    <div class="form-field" style="margin-bottom:1rem">
+      <input type="password" id="passInput" placeholder="Пароль..." onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Войти</button>
+    <div id="loginErr" style="color:var(--danger);font-size:.82rem;margin-top:.75rem;display:none">Неверный пароль</div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="adminApp">
+  <nav class="admin-nav">
+    <div class="admin-logo">Soft<span>Hub</span> Admin</div>
+    <button class="nav-tab active" onclick="showTab('programs', this)">📦 Программы</button>
+    <button class="nav-tab" onclick="showTab('categories', this)">🗂️ Категории</button>
+    <button class="nav-tab" onclick="showTab('settings', this)">⚙️ Настройки</button>
+    <button class="btn btn-ghost" style="margin-left:.5rem;font-size:.82rem" onclick="window.open('/')">🌐 Сайт</button>
+    <button class="btn btn-ghost" style="font-size:.82rem" onclick="logout()">Выйти</button>
+  </nav>
+
+  <!-- Programs tab -->
+  <div id="tab-programs" class="admin-main">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="section-header">
+      <div class="section-title">Программы</div>
+      <button class="btn btn-primary" onclick="openAddProgram()">+ Добавить</button>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+      <table class="prog-table">
+        <thead>
+          <tr>
+            <th>Иконка</th><th>Название</th><th>Категория</th>
+            <th>Версия</th><th>Размер</th><th>Скачали</th><th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="progTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Categories tab -->
+  <div id="tab-categories" class="admin-main" style="display:none">
+    <div class="section-header">
+      <div class="section-title">Категории</div>
+      <button class="btn btn-primary" onclick="openAddCategory()">+ Добавить</button>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <!-- Settings tab -->
+  <div id="tab-settings" class="admin-main" style="display:none">
+    <div class="section-title" style="margin-bottom:1.5rem">Настройки сайта</div>
+    <div class="warn-box">⚠️ После смены пароля тебя выкинет из панели — войди с новым паролем.</div>
+    <div class="settings-form">
+      <div class="form-field">
+        <div class="form-label">Название сайта</div>
+        <input type="text" id="sTitle" placeholder="SoftHub">
+      </div>
+      <div class="form-field">
+        <div class="form-label">Описание</div>
+        <textarea id="sDesc" placeholder="Каталог бесплатных программ"></textarea>
+      </div>
+      <div class="form-field">
+        <div class="form-label">Новый пароль (оставь пустым, если не меняешь)</div>
+        <input type="password" id="sPass" placeholder="Новый пароль...">
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Program form modal -->
+<div class="modal-overlay" id="progModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="progModalTitle">Добавить программу</h2>
+      <button class="modal-close" onclick="closeProgModal()">✕</button>
+    </div>
+    <div class="modal-form">
+      <input type="hidden" id="editId">
+      <div class="form-grid">
+        <div class="form-field full">
+          <div class="form-label">Название *</div>
+          <input type="text" id="fName" placeholder="LibreOffice">
+        </div>
+        <div class="form-field full">
+          <div class="form-label">Краткое описание *</div>
+          <input type="text" id="fDesc" placeholder="Бесплатный аналог Microsoft Office">
+        </div>
+        <div class="form-field full">
+          <div class="form-label">Полное описание</div>
+          <textarea id="fLongDesc" placeholder="Подробное описание программы..."></textarea>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Категория *</div>
+          <select id="fCategory"></select>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Версия</div>
+          <input type="text" id="fVersion" placeholder="7.6.4">
+        </div>
+        <div class="form-field">
+          <div class="form-label">Платформа</div>
+          <select id="fOs">
+            <option>Windows</option>
+            <option>macOS</option>
+            <option>Linux</option>
+            <option>Windows / macOS / Linux</option>
+            <option>Web</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Иконка (эмодзи или загрузи файл)</div>
+          <input type="text" id="fIcon" placeholder="📄 или оставь пустым">
+        </div>
+        <div class="form-field full">
+          <div class="form-label">Загрузить иконку (PNG/ICO)</div>
+          <div class="upload-zone" onclick="document.getElementById('iconUpload').click()">
+            📁 Нажми чтобы выбрать иконку
+            <input type="file" id="iconUpload" accept="image/*" onchange="uploadIcon(this)">
+            <div class="upload-info" id="iconUploadInfo"></div>
+          </div>
+        </div>
+        <div class="form-field full">
+          <div class="form-label">Загрузить файл программы</div>
+          <div class="upload-zone" onclick="document.getElementById('fileUpload').click()">
+            ⬆️ Нажми чтобы выбрать файл (.exe, .zip, .msi...)
+            <input type="file" id="fileUpload" onchange="uploadFile(this)">
+            <div class="upload-info" id="fileUploadInfo"></div>
+          </div>
+        </div>
+        <input type="hidden" id="fFilename">
+        <input type="hidden" id="fFilesize">
+        <div class="form-field">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="fFeatured" style="width:auto"> ⭐ Отметить как топ
+          </label>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeProgModal()">Отмена</button>
+        <button class="btn btn-primary" onclick="saveProgram()">💾 Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Category form modal -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <h2>Добавить категорию</h2>
+      <button class="modal-close" onclick="document.getElementById('catModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-form">
+      <div class="form-field" style="margin-bottom:1rem">
+        <div class="form-label">Название</div>
+        <input type="text" id="cName" placeholder="Офис">
+      </div>
+      <div class="form-field" style="margin-bottom:1rem">
+        <div class="form-label">Slug (латиницей)</div>
+        <input type="text" id="cSlug" placeholder="office">
+      </div>
+      <div class="form-field" style="margin-bottom:1.5rem">
+        <div class="form-label">Иконка (эмодзи)</div>
+        <input type="text" id="cIcon" placeholder="📄">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="saveCategory()">💾 Добавить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let CSRF_TOKEN = '';
+  let categories = [];
+  let programsById = new Map();
+  let isLoggingOut = false;
+
+  function escHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function escAttr(value) {
+    return escHtml(value).replace(/`/g, '&#96;');
+  }
+
+  function iconMarkup(icon, size = 28) {
+    const value = String(icon ?? '').trim();
+    if (!value) return '📦';
+    if (value.startsWith('/')) {
+      return `<img src="${escAttr(value)}" style="width:${size}px;height:${size}px;object-fit:cover;border-radius:6px" alt="">`;
+    }
+    return escHtml(value);
+  }
+
+  async function doLogin() {
+    const pass = document.getElementById('passInput').value.trim();
+    const r = await fetch('/api/admin/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ password: pass })
+    });
+    if (r.ok) {
+      document.getElementById('loginErr').style.display = 'none';
+      showAdmin();
+    } else {
+      document.getElementById('loginErr').style.display = 'block';
+    }
+  }
+
+  async function logout(skipServerCall = false) {
+    if (isLoggingOut) return;
+    isLoggingOut = true;
+    try {
+      if (!skipServerCall) {
+        await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+      }
+    } catch (_) {}
+    location.reload();
+  }
+
+  async function checkToken() {
+    const r = await fetch('/api/admin/session', { credentials: 'same-origin', cache: 'no-store' });
+    if (r.ok) showAdmin();
+  }
+
+  async function refreshCsrfToken() {
+    const r = await fetch('/api/admin/csrf', { credentials: 'same-origin', cache: 'no-store' });
+    if (!r.ok) throw new Error('csrf');
+    const d = await r.json();
+    CSRF_TOKEN = d.csrfToken || '';
+  }
+
+  async function authFetch(url, options = {}) {
+    const opts = {
+      ...options,
+      credentials: 'same-origin',
+      headers: { ...(options.headers || {}) },
+    };
+
+    const r = await fetch(url, opts);
+    if (r.status === 401) {
+      await logout(true);
+      throw new Error('unauthorized');
+    }
+    return r;
+  }
+
+  async function showAdmin() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    await refreshCsrfToken();
+    await loadCategories();
+    loadPrograms();
+    loadSettings();
+    loadStats();
+  }
+
+  async function apiGet(url) {
+    const r = await authFetch(url, { cache: 'no-store' });
+    return r.json();
+  }
+  async function apiPost(url, data) {
+    return authFetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-csrf-token': CSRF_TOKEN },
+      body: JSON.stringify(data),
+    });
+  }
+  async function apiPut(url, data) {
+    return authFetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'x-csrf-token': CSRF_TOKEN },
+      body: JSON.stringify(data),
+    });
+  }
+  async function apiDelete(url) {
+    return authFetch(url, {
+      method: 'DELETE',
+      headers: { 'x-csrf-token': CSRF_TOKEN },
+    });
+  }
+
+  function toast(msg, type = 'ok') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'ok' ? '✅ ' : '❌ ') + msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  async function loadStats() {
+    const [progs, cats] = await Promise.all([
+      fetch('/api/programs?limit=1000').then(r=>r.json()),
+      fetch('/api/categories').then(r=>r.json())
+    ]);
+    const totalDl = (progs.programs || []).reduce((s, p) => s + p.download_count, 0);
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><div class="stat-label">Программ</div><div class="stat-val">${progs.total}</div></div>
+      <div class="stat-card"><div class="stat-label">Категорий</div><div class="stat-val">${cats.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Скачиваний</div><div class="stat-val">${totalDl}</div></div>
+    `;
+  }
+
+  async function loadCategories() {
+    categories = await apiGet('/api/admin/categories');
+    document.getElementById('fCategory').innerHTML = categories.map(c =>
+      `<option value="${Number(c.id) || 0}">${escHtml(c.icon || '📦')} ${escHtml(c.name || '')}</option>`
+    ).join('');
+    renderCatGrid();
+  }
+
+  function renderCatGrid() {
+    document.getElementById('catGrid').innerHTML = categories.map(c => `
+      <div class="cat-card">
+        <div class="ico">${escHtml(c.icon || '📦')}</div>
+        <div class="info">
+          <div class="name">${escHtml(c.name || '')}</div>
+          <div class="slug">${escHtml(c.slug || '')}</div>
+        </div>
+        <button class="btn btn-danger" style="padding:6px 10px;font-size:.75rem" onclick="deleteCategory(${Number(c.id) || 0})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  async function loadPrograms() {
+    const progs = await apiGet('/api/admin/programs');
+    programsById = new Map((progs || []).map(p => [Number(p.id), String(p.name || '')]));
+    const tbody = document.getElementById('progTableBody');
+    if (!progs.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Программ пока нет — добавь первую!</td></tr>';
+      return;
+    }
+    tbody.innerHTML = progs.map(p => `
+      <tr>
+        <td class="tbl-icon">${iconMarkup(p.icon, 28)}</td>
+        <td><div class="tbl-name">${escHtml(p.name || '')}</div></td>
+        <td><span class="tbl-cat">${escHtml(p.category_name || '')}</span></td>
+        <td style="color:var(--muted);font-size:.82rem">${escHtml(p.version || '—')}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted)">${escHtml(formatSize(p.filesize))}</td>
+        <td class="tbl-dl">${Number(p.download_count) || 0}</td>
+        <td><div class="tbl-actions">
+          <button class="btn btn-ghost" style="padding:6px 10px;font-size:.78rem" onclick="openEditProgram(${Number(p.id) || 0})">✏️</button>
+          <button class="btn btn-danger" style="padding:6px 10px;font-size:.78rem" onclick="deleteProgram(${Number(p.id) || 0})">🗑️</button>
+        </div></td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadSettings() {
+    const info = await fetch('/api/info').then(r => r.json());
+    document.getElementById('sTitle').value = info.site_title || '';
+    document.getElementById('sDesc').value = info.site_description || '';
+  }
+
+  /* ── Program modal ────────────────────────────────── */
+  function openAddProgram() {
+    document.getElementById('progModalTitle').textContent = 'Добавить программу';
+    document.getElementById('editId').value = '';
+    ['fName','fDesc','fLongDesc','fVersion','fIcon','fFilename','fFilesize'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fFeatured').checked = false;
+    document.getElementById('iconUploadInfo').textContent = '';
+    document.getElementById('fileUploadInfo').textContent = '';
+    document.getElementById('progModal').classList.add('open');
+  }
+
+  async function openEditProgram(id) {
+    const p = await fetch(`/api/programs/${id}`).then(r => r.json());
+    document.getElementById('progModalTitle').textContent = 'Редактировать';
+    document.getElementById('editId').value = p.id;
+    document.getElementById('fName').value = p.name;
+    document.getElementById('fDesc').value = p.description;
+    document.getElementById('fLongDesc').value = p.long_description || '';
+    document.getElementById('fVersion').value = p.version || '';
+    document.getElementById('fIcon').value = p.icon || '';
+    document.getElementById('fFilename').value = p.filename || '';
+    document.getElementById('fFilesize').value = p.filesize || '';
+    document.getElementById('fFeatured').checked = !!p.is_featured;
+    document.getElementById('fOs').value = p.os || 'Windows';
+    document.getElementById('fCategory').value = p.category_id;
+    document.getElementById('iconUploadInfo').textContent = p.icon?.startsWith('/') ? '✅ Иконка загружена' : '';
+    document.getElementById('fileUploadInfo').textContent = p.filename ? `✅ ${p.filename}` : '';
+    document.getElementById('progModal').classList.add('open');
+  }
+
+  function closeProgModal() { document.getElementById('progModal').classList.remove('open'); }
+
+  async function saveProgram() {
+    const data = {
+      name: document.getElementById('fName').value.trim(),
+      description: document.getElementById('fDesc').value.trim(),
+      long_description: document.getElementById('fLongDesc').value.trim(),
+      version: document.getElementById('fVersion').value.trim(),
+      category_id: Number(document.getElementById('fCategory').value),
+      icon: document.getElementById('fIcon').value.trim(),
+      filename: document.getElementById('fFilename').value.trim(),
+      filesize: Number(document.getElementById('fFilesize').value) || 0,
+      os: document.getElementById('fOs').value,
+      is_featured: document.getElementById('fFeatured').checked
+    };
+    if (!data.name || !data.description || !data.category_id) {
+      toast('Заполни обязательные поля', 'err'); return;
+    }
+    const editId = document.getElementById('editId').value;
+    const r = editId
+      ? await apiPut(`/api/admin/programs/${editId}`, data)
+      : await apiPost('/api/admin/programs', data);
+    if (r.ok) {
+      closeProgModal(); loadPrograms(); loadStats(); toast('Сохранено!');
+    } else { toast('Ошибка сохранения', 'err'); }
+  }
+
+  async function deleteProgram(id) {
+    const safeId = Number(id) || 0;
+    const name = programsById.get(safeId) || 'эту программу';
+    if (!confirm(`Удалить "${name}"?`)) return;
+    await apiDelete(`/api/admin/programs/${safeId}`);
+    loadPrograms(); loadStats(); toast('Удалено');
+  }
+
+  /* ── File uploads ─────────────────────────────────── */
+  async function uploadIcon(input) {
+    const file = input.files[0]; if (!file) return;
+    const form = new FormData(); form.append('icon', file);
+    const r = await authFetch('/api/admin/upload-icon', {
+      method: 'POST',
+      headers: { 'x-csrf-token': CSRF_TOKEN },
+      body: form,
+    });
+    if (!r.ok) { toast('Ошибка загрузки иконки', 'err'); return; }
+    const d = await r.json();
+    document.getElementById('fIcon').value = d.url;
+    document.getElementById('iconUploadInfo').textContent = '✅ Загружено: ' + file.name;
+  }
+
+  async function uploadFile(input) {
+    const file = input.files[0]; if (!file) return;
+    document.getElementById('fileUploadInfo').textContent = '⏳ Загружаю...';
+    const form = new FormData(); form.append('file', file);
+    const r = await authFetch('/api/admin/upload-file', {
+      method: 'POST',
+      headers: { 'x-csrf-token': CSRF_TOKEN },
+      body: form,
+    });
+    if (!r.ok) {
+      document.getElementById('fileUploadInfo').textContent = '';
+      toast('Ошибка загрузки файла', 'err');
+      return;
+    }
+    const d = await r.json();
+    document.getElementById('fFilename').value = d.filename;
+    document.getElementById('fFilesize').value = d.size;
+    document.getElementById('fileUploadInfo').textContent = `✅ ${file.name} (${formatSize(d.size)})`;
+  }
+
+  /* ── Categories ───────────────────────────────────── */
+  function openAddCategory() { document.getElementById('catModal').classList.add('open'); }
+
+  async function saveCategory() {
+    const name = document.getElementById('cName').value.trim();
+    const slug = document.getElementById('cSlug').value.trim();
+    const icon = document.getElementById('cIcon').value.trim() || '📦';
+    if (!name || !slug) { toast('Заполни название и slug', 'err'); return; }
+    const r = await apiPost('/api/admin/categories', { name, slug, icon });
+    if (r.ok) {
+      document.getElementById('catModal').classList.remove('open');
+      loadCategories(); toast('Категория добавлена!');
+    } else { toast('Ошибка (slug уже занят?)', 'err'); }
+  }
+
+  async function deleteCategory(id) {
+    if (!confirm('Удалить категорию? Программы в ней останутся.')) return;
+    await apiDelete(`/api/admin/categories/${id}`);
+    loadCategories(); toast('Удалено');
+  }
+
+  /* ── Settings ─────────────────────────────────────── */
+  async function saveSettings() {
+    const data = {
+      site_title: document.getElementById('sTitle').value.trim(),
+      site_description: document.getElementById('sDesc').value.trim(),
+      admin_password: document.getElementById('sPass').value.trim() || undefined
+    };
+    const r = await apiPut('/api/admin/settings', data);
+    if (r.ok) {
+      if (data.admin_password) {
+        toast('Пароль обновлен. Входим заново…');
+        setTimeout(() => logout(), 700);
+      } else {
+        toast('Настройки сохранены!');
+      }
+    } else {
+      const d = await r.json().catch(() => ({ error: 'Ошибка сохранения' }));
+      toast(d.error || 'Ошибка сохранения', 'err');
+    }
+  }
+
+  /* ── Tabs ─────────────────────────────────────────── */
+  function showTab(name, btn) {
+    ['programs','categories','settings'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function formatSize(bytes) {
+    if (!bytes) return '—';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
+    return (bytes/1024/1024).toFixed(1) + ' MB';
+  }
+
+  // Auto-slug from name
+  document.getElementById('cName')?.addEventListener('input', e => {
+    const slug = e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    document.getElementById('cSlug').value = slug;
+  });
+
+  checkToken();
+</script>
+</body>
+</html>

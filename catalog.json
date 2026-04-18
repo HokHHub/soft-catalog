@@ -1,0 +1,78 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Офис",
+      "slug": "office",
+      "icon": "📄"
+    },
+    {
+      "id": 2,
+      "name": "Графика",
+      "slug": "graphics",
+      "icon": "🎨"
+    },
+    {
+      "id": 3,
+      "name": "Утилиты",
+      "slug": "utilities",
+      "icon": "🔧"
+    },
+    {
+      "id": 4,
+      "name": "Медиа",
+      "slug": "media",
+      "icon": "🎵"
+    },
+    {
+      "id": 5,
+      "name": "Интернет",
+      "slug": "internet",
+      "icon": "🌐"
+    },
+    {
+      "id": 6,
+      "name": "Безопасность",
+      "slug": "security",
+      "icon": "🔒"
+    },
+    {
+      "id": 7,
+      "name": "Разработка",
+      "slug": "dev",
+      "icon": "💻"
+    },
+    {
+      "id": 8,
+      "name": "Архиваторы",
+      "slug": "archive",
+      "icon": "📦"
+    }
+  ],
+  "programs": [
+    {
+      "id": 1,
+      "name": "MS Office 2019",
+      "description": "Лучший из лучших, как обычно",
+      "long_description": "Ms office это тантум верде форте",
+      "version": "2019",
+      "category_id": 1,
+      "icon": "",
+      "filename": "",
+      "filesize": 0,
+      "os": "Windows",
+      "is_featured": 1,
+      "download_count": 0,
+      "created_at": "2026-04-18T18:16:31.443Z"
+    }
+  ],
+  "settings": {
+    "site_title": "SoftHub",
+    "site_description": "Каталог бесплатных и полезных программ",
+    "admin_password_hash": "pbkdf2$210000$1c1685a819265a7d0f192b30ecfa6827$e3c1c8df19b2b736f7b4b65c1ffd2d386d617bf124d6448a301dd8312027c3d75cd4c442c7de2a7bcb347896fe8174694d1593ab5c7f534af24b336152711a30"
+  },
+  "_seq": {
+    "categories": 8,
+    "programs": 1
+  }
+}
