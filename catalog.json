@@ -69,7 +69,7 @@
   "settings": {
     "site_title": "SoftHub",
     "site_description": "???????",
-    "admin_password_hash": "pbkdf2$210000$c37149daac1c9e7e438101351eba70f7$334b0fe9092c8dbf5ed9645ff70bb36df2ef0a9c8267f48c13d607d21f4a4ea1f737a79eb0b273379138c73da4220a3eeae4bd8d4ed01237fba76d6cdd6709cd"
+    "admin_password_hash": "pbkdf2$210000$26259d822dc2dc958ec61cc30b42b9d2$96af32c3e8068aeccf6ac22ec27cee390198d7d82c02791072dc456383a92206a286e62896a5dc804e066c672775b5d238eb9cd2c32ec23b57e02e14d0c7bf3e"
   },
   "_seq": {
     "categories": 8,

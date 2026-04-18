@@ -315,6 +315,13 @@ function updateSettings(updates) {
   if (Object.prototype.hasOwnProperty.call(updates, 'site_description')) {
     d.settings.site_description = asString(updates.site_description).trim();
   }
+  // Backward-compatible password update path:
+  // if older server code passes admin_password via updateSettings,
+  // still apply secure hash instead of silently ignoring.
+  if (Object.prototype.hasOwnProperty.call(updates, 'admin_password')) {
+    const next = asString(updates.admin_password).trim();
+    if (next) d.settings.admin_password_hash = hashPassword(next);
+  }
   save(d);
 }
 

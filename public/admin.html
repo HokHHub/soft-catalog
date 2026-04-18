@@ -693,15 +693,17 @@
       admin_password: document.getElementById('sPass').value.trim() || undefined
     };
     const r = await apiPut('/api/admin/settings', data);
+    const d = await r.json().catch(() => ({}));
     if (r.ok) {
-      if (data.admin_password) {
+      if (data.admin_password && d.passwordUpdated) {
         toast('Пароль обновлен. Входим заново…');
         setTimeout(() => logout(), 700);
+      } else if (data.admin_password && !d.passwordUpdated) {
+        toast('Пароль не был обновлён на сервере', 'err');
       } else {
         toast('Настройки сохранены!');
       }
     } else {
-      const d = await r.json().catch(() => ({ error: 'Ошибка сохранения' }));
       toast(d.error || 'Ошибка сохранения', 'err');
     }
   }
