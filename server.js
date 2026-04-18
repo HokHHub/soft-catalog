@@ -13,6 +13,8 @@ const PORT = process.env.PORT || 3000;
 const isProd = process.env.NODE_ENV === 'production';
 
 app.disable('x-powered-by');
+// Render/other PaaS sit behind reverse proxy; required for correct client IP detection.
+app.set('trust proxy', 1);
 
 // Ensure upload dirs exist
 const uploadsDir = path.join(__dirname, 'data', 'uploads');
