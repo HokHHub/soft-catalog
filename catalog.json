@@ -69,7 +69,7 @@
   "settings": {
     "site_title": "SoftHub",
     "site_description": "Каталог бесплатных и полезных программ",
-    "admin_password_hash": "pbkdf2$210000$1c1685a819265a7d0f192b30ecfa6827$e3c1c8df19b2b736f7b4b65c1ffd2d386d617bf124d6448a301dd8312027c3d75cd4c442c7de2a7bcb347896fe8174694d1593ab5c7f534af24b336152711a30"
+    "admin_password_hash": "pbkdf2$210000$b904c6d7762f610fb2cd3e0a4750c140$500e3a56d8b305bc184d56e7db140dcdaa32262e8a537167d0219aece714d5920e2c6a39334ed5e62440091c66fe392cbfe925a12f1a72868868f373b54023a1"
   },
   "_seq": {
     "categories": 8,
