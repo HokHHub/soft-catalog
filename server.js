@@ -141,7 +141,13 @@ app.get('/api/programs/:id', (req, res) => {
 
 app.get('/api/download/:id', (req, res) => {
   const p = db.incrementDownload(req.params.id);
-  if (!p || !p.filename) return res.status(404).json({ error: 'File not found' });
+  if (!p) return res.status(404).json({ error: 'File not found' });
+
+  if (p.external_url) {
+    return res.redirect(p.external_url);
+  }
+
+  if (!p.filename) return res.status(404).json({ error: 'File not found' });
 
   const normalizedName = path.basename(p.filename);
   const candidates = [

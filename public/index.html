@@ -605,7 +605,7 @@
             <span class="badge cat">${escHtml(p.category_icon || '📦')} ${escHtml(p.category_name || '')}</span>
             ${p.filesize ? `<span class="badge">${formatSize(p.filesize)}</span>` : ''}
           </div>
-          ${p.filename ? `<span class="btn-dl">⬇ Скачать</span>` : '<span class="dl-count">нет файла</span>'}
+          ${(p.filename || p.external_url) ? `<span class="btn-dl">⬇ Скачать</span>` : '<span class="dl-count">нет файла</span>'}
         </div>
       </div>
     `).join('');
@@ -647,7 +647,7 @@
           <div class="info-item"><div class="info-label">Размер</div><div class="info-val">${p.filesize ? formatSize(p.filesize) : '—'}</div></div>
           <div class="info-item"><div class="info-label">Скачиваний</div><div class="info-val">${Number(p.download_count) || 0}</div></div>
         </div>
-        ${p.filename
+        ${(p.filename || p.external_url)
           ? `<a class="btn-dl-big" href="/api/download/${programId}">⬇ Скачать бесплатно</a>`
           : `<div class="no-file-msg">📂 Файл скоро появится</div>`}
       </div>

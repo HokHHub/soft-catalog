@@ -63,7 +63,8 @@
       "os": "Windows",
       "is_featured": 1,
       "download_count": 0,
-      "created_at": "2026-04-18T18:16:31.443Z"
+      "created_at": "2026-04-18T18:16:31.443Z",
+      "external_url": ""
     }
   ],
   "settings": {
@@ -73,6 +74,6 @@
   },
   "_seq": {
     "categories": 8,
-    "programs": 1
+    "programs": 2
   }
 }

@@ -335,6 +335,10 @@
             <div class="upload-info" id="fileUploadInfo"></div>
           </div>
         </div>
+        <div class="form-field full">
+          <div class="form-label">Внешняя ссылка на файл (Google Drive и т.п.)</div>
+          <input type="url" id="fExternalUrl" placeholder="https://drive.google.com/...">
+        </div>
         <input type="hidden" id="fFilename">
         <input type="hidden" id="fFilesize">
         <div class="form-field">
@@ -568,7 +572,7 @@
   function openAddProgram() {
     document.getElementById('progModalTitle').textContent = 'Добавить программу';
     document.getElementById('editId').value = '';
-    ['fName','fDesc','fLongDesc','fVersion','fIcon','fFilename','fFilesize'].forEach(id => document.getElementById(id).value = '');
+    ['fName','fDesc','fLongDesc','fVersion','fIcon','fFilename','fFilesize','fExternalUrl'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('fFeatured').checked = false;
     document.getElementById('iconUploadInfo').textContent = '';
     document.getElementById('fileUploadInfo').textContent = '';
@@ -585,6 +589,7 @@
     document.getElementById('fVersion').value = p.version || '';
     document.getElementById('fIcon').value = p.icon || '';
     document.getElementById('fFilename').value = p.filename || '';
+    document.getElementById('fExternalUrl').value = p.external_url || '';
     document.getElementById('fFilesize').value = p.filesize || '';
     document.getElementById('fFeatured').checked = !!p.is_featured;
     document.getElementById('fOs').value = p.os || 'Windows';
@@ -605,6 +610,7 @@
       category_id: Number(document.getElementById('fCategory').value),
       icon: document.getElementById('fIcon').value.trim(),
       filename: document.getElementById('fFilename').value.trim(),
+      external_url: document.getElementById('fExternalUrl').value.trim(),
       filesize: Number(document.getElementById('fFilesize').value) || 0,
       os: document.getElementById('fOs').value,
       is_featured: document.getElementById('fFeatured').checked

@@ -93,6 +93,13 @@ function ensureShapeAndSecurity(data) {
     changed = true;
   }
 
+  for (const p of data.programs) {
+    if (!Object.prototype.hasOwnProperty.call(p, 'external_url')) {
+      p.external_url = '';
+      changed = true;
+    }
+  }
+
   if (typeof data.settings.site_title !== 'string') {
     data.settings.site_title = 'SoftHub';
     changed = true;
@@ -224,6 +231,7 @@ function addProgram(data) {
     category_id: Number(data.category_id),
     icon: normalizeShortText(data.icon),
     filename: normalizeShortText(data.filename),
+    external_url: normalizeShortText(data.external_url),
     filesize: Number(data.filesize) || 0,
     os: normalizeShortText(data.os, 'Windows'),
     is_featured: data.is_featured ? 1 : 0,
@@ -247,6 +255,7 @@ function updateProgram(id, data) {
     category_id: Number(data.category_id),
     icon: normalizeShortText(data.icon),
     filename: normalizeShortText(data.filename),
+    external_url: normalizeShortText(data.external_url),
     filesize: Number(data.filesize) || 0,
     os: normalizeShortText(data.os, 'Windows'),
     is_featured: data.is_featured ? 1 : 0,
